@@ -1,0 +1,93 @@
+{
+  "incident_id": "resource_exhaustion",
+  "incident_type": "resource_exhaustion",
+  "severity": "high",
+  "affected_service": "system-monitor, file-service",
+  "probable_root_cause": "Disk space exhaustion on mount /var/data: usage climbed from 74% to 88% (above the 85% threshold) to 96% (above the 90% threshold) with only 412 MB free, causing file-service to fail writing /var/data/tmp/upload_4f2a.tmp with ENOSPC (insufficient_disk_space). Memory pressure (85% memory, 41% swap) is a secondary signal.",
+  "evidence": [
+    {
+      "timestamp": "2026-10-11T11:33:00.225Z",
+      "level": "INFO",
+      "service": "system-monitor",
+      "host": "mon-agent-01",
+      "trace_id": "trc-2a98f6c1",
+      "message": "Resource check completed",
+      "details": {
+        "cpu_percent": 45,
+        "memory_percent": 60,
+        "disk_percent": 74
+      }
+    },
+    {
+      "timestamp": "2026-10-11T11:33:30.459Z",
+      "level": "WARNING",
+      "service": "system-monitor",
+      "host": "mon-agent-01",
+      "trace_id": "trc-2a98f6c1",
+      "message": "Disk usage is high",
+      "details": {
+        "mount": "/var/data",
+        "disk_percent": 88,
+        "threshold_percent": 85
+      }
+    },
+    {
+      "timestamp": "2026-10-11T11:33:55.603Z",
+      "level": "WARNING",
+      "service": "system-monitor",
+      "host": "mon-agent-01",
+      "trace_id": "trc-2a98f6c1",
+      "message": "Memory pressure rising",
+      "details": {
+        "memory_percent": 85,
+        "swap_percent": 41
+      }
+    },
+    {
+      "timestamp": "2026-10-11T11:34:18.284Z",
+      "level": "ERROR",
+      "service": "system-monitor",
+      "host": "mon-agent-01",
+      "trace_id": "trc-2a98f6c1",
+      "message": "Disk usage critical",
+      "details": {
+        "mount": "/var/data",
+        "disk_percent": 96,
+        "threshold_percent": 90,
+        "free_mb": 412
+      }
+    },
+    {
+      "timestamp": "2026-10-11T11:34:22.828Z",
+      "level": "ERROR",
+      "service": "file-service",
+      "host": "file-svc-02",
+      "trace_id": "trc-2a98f6c1",
+      "message": "Unable to write temporary file",
+      "details": {
+        "path": "/var/data/tmp/upload_4f2a.tmp",
+        "reason": "insufficient_disk_space",
+        "errno": "ENOSPC"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T11:34:30.890Z",
+      "level": "WARNING",
+      "service": "system-monitor",
+      "host": "mon-agent-01",
+      "trace_id": "trc-2a98f6c1",
+      "message": "Cleanup job triggered",
+      "details": {
+        "deleted_temp_mb": 1840,
+        "disk_percent_after": 89
+      }
+    }
+  ],
+  "troubleshooting_steps": [
+    "Identify the largest consumers of disk space on /var/data (usage reached 96% with 412 MB free).",
+    "Verify the cleanup job that deleted 1840 MB of temporary files and returned usage to 89%.",
+    "Keep monitoring /var/data against the 85% warning and 90% critical thresholds.",
+    "Investigate the secondary memory pressure (85% memory, 41% swap)."
+  ],
+  "expected_resolution": "The cleanup job keeps /var/data below the 90% critical threshold (already reduced to 89% by deleting 1840 MB), temporary file writes succeed again without ENOSPC, and memory pressure subsides."
+}

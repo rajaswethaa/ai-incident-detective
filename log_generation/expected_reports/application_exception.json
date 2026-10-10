@@ -1,0 +1,81 @@
+{
+  "incident_id": "application_exception",
+  "incident_type": "application_exception",
+  "severity": "medium",
+  "affected_service": "report-service",
+  "probable_root_cause": "Dirty input data in s3://reports-input/october.csv: the total_amount field contains the string \"N/A\" where a float is expected, raising a TypeError during the aggregation stage and failing report RPT-202 (error code E_RPT_TYPE).",
+  "evidence": [
+    {
+      "timestamp": "2026-10-11T08:21:00.032Z",
+      "level": "INFO",
+      "service": "report-service",
+      "host": "rpt-svc-03",
+      "trace_id": "trc-91af6e04",
+      "message": "Report generation started",
+      "details": {
+        "report_id": "RPT-202",
+        "report_type": "monthly_sales",
+        "user_id": "usr-5521"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T08:21:03.030Z",
+      "level": "INFO",
+      "service": "report-service",
+      "host": "rpt-svc-03",
+      "trace_id": "trc-91af6e04",
+      "message": "Reading report input",
+      "details": {
+        "source": "s3://reports-input/october.csv",
+        "rows_expected": 1520
+      }
+    },
+    {
+      "timestamp": "2026-10-11T08:21:06.095Z",
+      "level": "ERROR",
+      "service": "report-service",
+      "host": "rpt-svc-03",
+      "trace_id": "trc-91af6e04",
+      "message": "Unexpected data type",
+      "details": {
+        "exception": "TypeError",
+        "field": "total_amount",
+        "expected_type": "float",
+        "received_type": "str",
+        "offending_value": "N/A"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T08:21:08.223Z",
+      "level": "ERROR",
+      "service": "report-service",
+      "host": "rpt-svc-03",
+      "trace_id": "trc-91af6e04",
+      "message": "Report generation failed",
+      "details": {
+        "report_id": "RPT-202",
+        "error_code": "E_RPT_TYPE",
+        "stage": "aggregation"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T08:21:12.238Z",
+      "level": "WARNING",
+      "service": "report-service",
+      "host": "rpt-svc-03",
+      "trace_id": "trc-91af6e04",
+      "message": "Report queued for retry",
+      "details": {
+        "report_id": "RPT-202",
+        "retry_in_seconds": 300
+      }
+    }
+  ],
+  "troubleshooting_steps": [
+    "Inspect rows in s3://reports-input/october.csv where total_amount is not numeric (offending value: \"N/A\").",
+    "Clean or sanitize the input data so total_amount can be parsed as a float.",
+    "Monitor the retry already queued for report RPT-202 (retry_in_seconds: 300).",
+    "Add input validation for non-numeric total_amount values to prevent recurrence."
+  ],
+  "expected_resolution": "After the input data is corrected or sanitized, the queued retry of report RPT-202 completes the aggregation stage successfully and the monthly_sales report is generated for user usr-5521."
+}
