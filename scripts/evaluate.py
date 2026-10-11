@@ -2,7 +2,7 @@
 expected_reports/, and prints a table with per-field match and overall percentage."""
 
 from __future__ import annotations
-
+from typing import Any, Tuple, List, Dict
 import json
 import os
 import sys
