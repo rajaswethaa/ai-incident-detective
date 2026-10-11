@@ -1,0 +1,82 @@
+{
+  "incident_id": "authentication_failure",
+  "incident_type": "authentication_failure",
+  "severity": "low",
+  "affected_service": "auth-service",
+  "probable_root_cause": "Three consecutive invalid password attempts for user test-user-01 from client IP 198.51.100.23 exhausted the lockout threshold of 3, so auth-service rejected the login (reason: invalid_credentials) and locked the account for 15 minutes. All attempts came from a single user and a single IP, which is consistent with a forgotten password rather than a distributed brute-force attack.",
+  "evidence": [
+    {
+      "timestamp": "2026-10-11T10:09:00.733Z",
+      "level": "INFO",
+      "service": "auth-service",
+      "host": "auth-svc-01",
+      "trace_id": "trc-e77b1d55",
+      "message": "Login attempt received",
+      "details": {
+        "user_id": "test-user-01",
+        "client_ip": "198.51.100.23",
+        "method": "password"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T10:09:03.665Z",
+      "level": "WARNING",
+      "service": "auth-service",
+      "host": "auth-svc-01",
+      "trace_id": "trc-e77b1d55",
+      "message": "Invalid password",
+      "details": {
+        "user_id": "test-user-01",
+        "attempt": 1,
+        "max_attempts": 3
+      }
+    },
+    {
+      "timestamp": "2026-10-11T10:09:07.718Z",
+      "level": "WARNING",
+      "service": "auth-service",
+      "host": "auth-svc-01",
+      "trace_id": "trc-e77b1d55",
+      "message": "Invalid password",
+      "details": {
+        "user_id": "test-user-01",
+        "attempt": 2,
+        "max_attempts": 3
+      }
+    },
+    {
+      "timestamp": "2026-10-11T10:09:10.558Z",
+      "level": "WARNING",
+      "service": "auth-service",
+      "host": "auth-svc-01",
+      "trace_id": "trc-e77b1d55",
+      "message": "Account approaching lockout",
+      "details": {
+        "user_id": "test-user-01",
+        "attempts_remaining": 1,
+        "lockout_threshold": 3
+      }
+    },
+    {
+      "timestamp": "2026-10-11T10:09:13.429Z",
+      "level": "ERROR",
+      "service": "auth-service",
+      "host": "auth-svc-01",
+      "trace_id": "trc-e77b1d55",
+      "message": "Authentication rejected",
+      "details": {
+        "user_id": "test-user-01",
+        "reason": "invalid_credentials",
+        "account_locked": true,
+        "lockout_minutes": 15
+      }
+    }
+  ],
+  "troubleshooting_steps": [
+    "Confirm with user test-user-01 whether they made the attempts from 198.51.100.23 (a single user and single IP suggests forgotten credentials).",
+    "Verify the account unlocks after the 15-minute lockout (lockout_minutes: 15).",
+    "Watch for repeated failures from 198.51.100.23 after the unlock, which would indicate a brute-force attempt.",
+    "Offer a password reset for test-user-01 if the failures continue."
+  ],
+  "expected_resolution": "The account unlocks after the 15-minute lockout, test-user-01 authenticates successfully with the correct password or a reset, and no further invalid-password warnings are logged for 198.51.100.23."
+}

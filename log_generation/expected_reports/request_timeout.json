@@ -1,0 +1,82 @@
+{
+  "incident_id": "request_timeout",
+  "incident_type": "request_timeout",
+  "severity": "medium",
+  "affected_service": "search-service",
+  "probable_root_cause": "The downstream dependency catalog-service (/api/catalog/lookup) responded too slowly - 4200 ms initially, then 5100 ms on the retry - consuming the entire 5-second timeout budget (waited 5012 ms), so the search request failed with HTTP 504 after both retry attempts were exhausted.",
+  "evidence": [
+    {
+      "timestamp": "2026-10-11T09:27:00.517Z",
+      "level": "INFO",
+      "service": "search-service",
+      "host": "srch-svc-01",
+      "trace_id": "trc-c5028b3e",
+      "message": "Search request received",
+      "details": {
+        "path": "/api/search",
+        "query": "wireless headphones",
+        "user_id": "usr-3307"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T09:27:02.616Z",
+      "level": "WARNING",
+      "service": "search-service",
+      "host": "srch-svc-01",
+      "trace_id": "trc-c5028b3e",
+      "message": "Dependency response is slow",
+      "details": {
+        "dependency": "catalog-service",
+        "dependency_endpoint": "/api/catalog/lookup",
+        "latency_ms": 4200
+      }
+    },
+    {
+      "timestamp": "2026-10-11T09:27:04.027Z",
+      "level": "WARNING",
+      "service": "search-service",
+      "host": "srch-svc-01",
+      "trace_id": "trc-c5028b3e",
+      "message": "Retry attempt failed",
+      "details": {
+        "dependency": "catalog-service",
+        "attempt": 1,
+        "max_attempts": 2,
+        "latency_ms": 5100
+      }
+    },
+    {
+      "timestamp": "2026-10-11T09:27:06.574Z",
+      "level": "ERROR",
+      "service": "search-service",
+      "host": "srch-svc-01",
+      "trace_id": "trc-c5028b3e",
+      "message": "Request timed out",
+      "details": {
+        "path": "/api/search",
+        "timeout_seconds": 5,
+        "waited_ms": 5012,
+        "dependency": "catalog-service"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T09:27:08.203Z",
+      "level": "INFO",
+      "service": "search-service",
+      "host": "srch-svc-01",
+      "trace_id": "trc-c5028b3e",
+      "message": "Request completed with failure",
+      "details": {
+        "status_code": 504,
+        "duration_ms": 5015
+      }
+    }
+  ],
+  "troubleshooting_steps": [
+    "Check the health and performance of catalog-service and its /api/catalog/lookup endpoint.",
+    "Compare the dependency latency (4200 ms, then 5100 ms) against the 5-second request timeout.",
+    "Review the retry policy: attempt 1 of max_attempts 2 already failed with 5100 ms latency.",
+    "Consider a circuit breaker or a raised timeout for catalog-service calls if the slowness persists."
+  ],
+  "expected_resolution": "catalog-service latency drops below the 5-second timeout budget, /api/search requests complete within the timeout, and retries succeed instead of returning 504."
+}

@@ -1,0 +1,83 @@
+{
+  "incident_id": "api_rate_limit",
+  "incident_type": "api_rate_limiting",
+  "severity": "medium",
+  "affected_service": "gateway",
+  "probable_root_cause": "Client client-A exceeded its configured quota of 100 requests per 60-second window, reaching 120 requests per minute, so the gateway correctly rejected requests with HTTP 429 and advised a 60-second cooldown via the Retry-After header. This is expected protective behavior, not a server fault.",
+  "evidence": [
+    {
+      "timestamp": "2026-10-11T07:38:00.913Z",
+      "level": "INFO",
+      "service": "gateway",
+      "host": "gw-edge-01",
+      "trace_id": "trc-4d6c0a99",
+      "message": "API request received",
+      "details": {
+        "client": "client-A",
+        "endpoint": "/api/orders",
+        "method": "GET"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T07:38:03.558Z",
+      "level": "WARNING",
+      "service": "gateway",
+      "host": "gw-edge-01",
+      "trace_id": "trc-4d6c0a99",
+      "message": "Request rate approaching limit",
+      "details": {
+        "client": "client-A",
+        "requests_per_minute": 90,
+        "limit": 100,
+        "window_seconds": 60
+      }
+    },
+    {
+      "timestamp": "2026-10-11T07:38:06.089Z",
+      "level": "ERROR",
+      "service": "gateway",
+      "host": "gw-edge-01",
+      "trace_id": "trc-4d6c0a99",
+      "message": "Rate limit exceeded",
+      "details": {
+        "client": "client-A",
+        "status_code": 429,
+        "requests_per_minute": 120,
+        "limit": 100,
+        "window_seconds": 60
+      }
+    },
+    {
+      "timestamp": "2026-10-11T07:38:09.604Z",
+      "level": "WARNING",
+      "service": "gateway",
+      "host": "gw-edge-01",
+      "trace_id": "trc-4d6c0a99",
+      "message": "Client throttled, retry advised",
+      "details": {
+        "client": "client-A",
+        "retry_after_seconds": 60,
+        "response_header": "Retry-After: 60"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T07:39:09.432Z",
+      "level": "INFO",
+      "service": "gateway",
+      "host": "gw-edge-01",
+      "trace_id": "trc-4d6c0a99",
+      "message": "Rate limit window reset",
+      "details": {
+        "client": "client-A",
+        "requests_per_minute": 0
+      }
+    }
+  ],
+  "troubleshooting_steps": [
+    "Confirm client-A's request pattern: 90 requests/minute approaching the limit, then 120 requests/minute against a 100 requests/minute limit.",
+    "Verify the rate-limit configuration: 100 requests per 60-second window.",
+    "Check that client-A honors the Retry-After: 60 response header.",
+    "Confirm the window reset at 2026-10-11T07:39:09.432Z with requests_per_minute back to 0."
+  ],
+  "expected_resolution": "client-A respects the 60-second Retry-After cooldown, the rate-limit window resets (already observed at 2026-10-11T07:39:09.432Z with 0 requests/minute), and subsequent requests are accepted below the 100 requests/minute limit."
+}

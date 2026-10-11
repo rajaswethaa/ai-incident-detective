@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Incident Detective</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#results">Skip to results</a>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <div class="brand">
+        <span class="brand__logo" aria-hidden="true">🕵️</span>
+        <div>
+          <h1 class="brand__title">AI Incident Detective</h1>
+          <p class="brand__subtitle">Upload an incident log and get a structured analysis.</p>
+        </div>
+      </div>
+      <span id="modeBadge" class="mode-badge" role="status">Demo mode</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ============================ CONTROLS ============================ -->
+    <section class="card" aria-labelledby="uploadHeading">
+      <h2 id="uploadHeading" class="card__title">1. Upload an incident log</h2>
+      <p class="card__hint">
+        Accepted formats: <code>.jsonl</code>, <code>.log</code>, <code>.json</code>
+      </p>
+
+      <div id="dropZone" class="drop-zone" tabindex="0" role="button"
+           aria-label="Choose an incident log file">
+        <span class="drop-zone__icon" aria-hidden="true">📄</span>
+        <p class="drop-zone__text">
+          <strong>Click to choose a file</strong> or drag &amp; drop it here
+        </p>
+        <p id="fileName" class="drop-zone__file" hidden></p>
+      </div>
+      <input id="fileInput" class="sr-only" type="file"
+             accept=".jsonl,.log,.json" />
+
+      <div class="actions">
+        <button id="analyzeButton" class="btn btn--primary" type="button" disabled>
+          Analyze Incident
+        </button>
+        <button id="clearButton" class="btn btn--ghost" type="button" hidden>
+          Clear
+        </button>
+      </div>
+
+      <div id="loading" class="loading" hidden role="status" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="loadingText">Analyzing incident…</span>
+      </div>
+
+      <div id="errorBox" class="alert alert--error" hidden role="alert">
+        <span class="alert__icon" aria-hidden="true">⚠️</span>
+        <span id="errorText"></span>
+      </div>
+    </section>
+
+    <!-- ============================ SETTINGS ============================ -->
+    <section class="card" aria-labelledby="settingsHeading">
+      <h2 id="settingsHeading" class="card__title">2. Analysis source</h2>
+      <p class="card__hint">
+        The backend API is not connected yet, so Demo mode is enabled by default.
+        Demo mode shows <strong>sample results</strong> and is clearly labelled —
+        it is never presented as real AI analysis.
+      </p>
+
+      <form id="settingsForm" class="settings">
+        <label class="radio">
+          <input type="radio" name="mode" value="demo" />
+          <span>
+            <strong>Demo mode</strong>
+            <small>Sample results for demonstration</small>
+          </span>
+        </label>
+
+        <label class="radio">
+          <input type="radio" name="mode" value="backend" />
+          <span>
+            <strong>Live backend</strong>
+            <small>Send the file to your backend API</small>
+          </span>
+        </label>
+
+        <div class="field">
+          <label for="apiUrl">Backend API URL</label>
+          <input id="apiUrl" type="url" inputmode="url" autocomplete="off"
+                 placeholder="e.g. http://127.0.0.1:8000/analyze" />
+          <small class="field__help">
+            No endpoint is defined in this project yet. Enter the URL your
+            teammate provides; it is stored only in your browser.
+          </small>
+        </div>
+
+        <button id="saveSettings" class="btn btn--secondary" type="submit">
+          Save settings
+        </button>
+        <span id="settingsSaved" class="settings__saved" hidden>Saved ✓</span>
+      </form>
+    </section>
+
+    <!-- ============================ RESULTS ============================ -->
+    <section id="results" class="results" aria-live="polite" hidden>
+      <div id="demoNotice" class="alert alert--demo" hidden>
+        <span class="alert__icon" aria-hidden="true">🧪</span>
+        <span>
+          <strong>Demo mode:</strong> these are sample results for demonstration
+          purposes only — <strong>not</strong> real AI analysis.
+        </span>
+      </div>
+
+      <div class="results__head">
+        <h2 class="results__title">Incident analysis</h2>
+        <span id="incidentId" class="incident-id"></span>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-item__label">Severity</span>
+          <span id="severity" class="badge"></span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-item__label">Incident type</span>
+          <span id="incidentType" class="summary-item__value"></span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-item__label">Affected service</span>
+          <span id="affectedService" class="summary-item__value"></span>
+        </div>
+      </div>
+
+      <section class="result-block">
+        <h3 class="result-block__title">Probable root cause</h3>
+        <p id="rootCause" class="result-block__text"></p>
+      </section>
+
+      <section class="result-block">
+        <h3 class="result-block__title">
+          Supporting evidence
+          <span id="evidenceCount" class="pill"></span>
+        </h3>
+        <ol id="evidenceList" class="evidence-list"></ol>
+      </section>
+
+      <section class="result-block">
+        <h3 class="result-block__title">Troubleshooting steps</h3>
+        <ol id="stepsList" class="steps-list"></ol>
+      </section>
+
+      <section id="resolutionBlock" class="result-block" hidden>
+        <h3 class="result-block__title">Expected resolution</h3>
+        <p id="resolution" class="result-block__text"></p>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>AI Incident Detective — frontend demo. Log generation module by the data team.</p>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="sample-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
