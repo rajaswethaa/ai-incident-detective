@@ -28,3 +28,6 @@ jobs:
       - name: Check Python syntax
         run: |
           python -m compileall -q log_analyzer/app log_generation scripts start_server.py
+
+      - name: Run log evaluation
+        run: python scripts/evaluate.py
