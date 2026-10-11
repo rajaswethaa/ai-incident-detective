@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Log Analyzer
 
 A simple FastAPI-based Log Analyzer that reads JSONL log files, detects incident types,
@@ -91,3 +92,6 @@ The analyzer detects these 7 incident types using rule-based logic:
 | `http_500_error` | "InternalServerError", status_code 500, traceback with "upstream returned 503" |
 | `request_timeout` | "timed out", "timeout", "waited_ms", dependency latency exceeding timeout |
 | `resource_exhaustion` | "Disk usage", "memory pressure", "ENOSPC", disk_percent/memory_percent fields |
+=======
+# ai-incident-detective
+>>>>>>> 06d3e9b0c486c55f7197316478bccd4ea5d94b35
