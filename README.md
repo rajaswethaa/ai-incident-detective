@@ -1,8 +1,20 @@
-<<<<<<< HEAD
 # Log Analyzer
 
 A simple FastAPI-based Log Analyzer that reads JSONL log files, detects incident types,
 and generates reports matching the expected schema from `log_generation/expected_reports/`.
+
+### SUMMARY
+Average overall percentage: 97.29%
+
+Per-field performance:
+  - incident_id: 7/7 = 100.0%
+  - incident_type: 7/7 = 100.0%
+  - severity: 7/7 = 100.0%
+  - affected_service: 6/7 = 85.7%
+  - probable_root_cause: 7/7 = 100.0%
+  - evidence: 7/7 = 100.0%
+  - troubleshooting_steps: 7/7 = 100.0%
+  - expected_resolution: 7/7 = 100.0%
 
 ## Project Structure
 
