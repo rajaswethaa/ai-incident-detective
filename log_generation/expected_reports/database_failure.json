@@ -1,0 +1,99 @@
+{
+  "incident_id": "database_failure",
+  "incident_type": "database_connection_failure",
+  "severity": "high",
+  "affected_service": "order-service",
+  "probable_root_cause": "Connection pool exhaustion on the orders_db primary (db-primary-01): the pool filled to 50/50 connections with 7 requests waiting, the INSERT INTO orders query latency reached 4500 ms, and subsequent connections timed out after 30 seconds (error code DB_TIMEOUT_30000), so order ORD-101 could not be saved after 3 retries.",
+  "evidence": [
+    {
+      "timestamp": "2026-10-11T06:05:04.114Z",
+      "level": "INFO",
+      "service": "order-service",
+      "host": "ord-svc-01",
+      "trace_id": "trc-7f3a91c2",
+      "message": "Received order request",
+      "details": {
+        "order_id": "ORD-101",
+        "user_id": "usr-8842",
+        "total_amount": 129.99
+      }
+    },
+    {
+      "timestamp": "2026-10-11T06:05:09.025Z",
+      "level": "WARNING",
+      "service": "order-service",
+      "host": "ord-svc-01",
+      "trace_id": "trc-7f3a91c2",
+      "message": "Database response is slow",
+      "details": {
+        "database": "orders_db",
+        "query": "INSERT INTO orders",
+        "latency_ms": 4500,
+        "pool_active": 46,
+        "pool_max": 50
+      }
+    },
+    {
+      "timestamp": "2026-10-11T06:05:12.759Z",
+      "level": "WARNING",
+      "service": "order-service",
+      "host": "ord-svc-01",
+      "trace_id": "trc-7f3a91c2",
+      "message": "Connection pool nearing exhaustion",
+      "details": {
+        "database": "orders_db",
+        "pool_active": 50,
+        "pool_max": 50,
+        "waiting_requests": 7
+      }
+    },
+    {
+      "timestamp": "2026-10-11T06:05:18.281Z",
+      "level": "ERROR",
+      "service": "order-service",
+      "host": "ord-svc-01",
+      "trace_id": "trc-7f3a91c2",
+      "message": "Database connection timeout",
+      "details": {
+        "database": "orders_db",
+        "db_host": "db-primary-01",
+        "timeout_seconds": 30,
+        "error_code": "DB_TIMEOUT_30000"
+      }
+    },
+    {
+      "timestamp": "2026-10-11T06:05:21.250Z",
+      "level": "ERROR",
+      "service": "order-service",
+      "host": "ord-svc-01",
+      "trace_id": "trc-7f3a91c2",
+      "message": "Order could not be saved",
+      "details": {
+        "order_id": "ORD-101",
+        "reason": "database_unavailable",
+        "retries_attempted": 3
+      }
+    },
+    {
+      "timestamp": "2026-10-11T06:05:26.228Z",
+      "level": "WARNING",
+      "service": "order-service",
+      "host": "ord-svc-01",
+      "trace_id": "trc-7f3a91c2",
+      "message": "Failover to replica initiated",
+      "details": {
+        "database": "orders_db",
+        "new_primary": "db-replica-02",
+        "estimated_recovery_seconds": 45
+      }
+    }
+  ],
+  "troubleshooting_steps": [
+    "Check connection pool metrics for orders_db: pool_active reached pool_max of 50 with 7 waiting requests.",
+    "Verify the health and load of the primary database host db-primary-01.",
+    "Review the slow INSERT INTO orders query that took 4500 ms.",
+    "Confirm the failover to db-replica-02 completed within the estimated 45 seconds.",
+    "Verify that order ORD-101 is persisted or safely retried after the pool recovers."
+  ],
+  "expected_resolution": "Failover to db-replica-02 completes within the estimated 45 seconds, the orders_db connection pool recovers below its 50-connection maximum, and order ORD-101 is successfully saved on retry."
+}
