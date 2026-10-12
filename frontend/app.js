@@ -91,7 +91,7 @@
     var storedUrl = safeGet(STORAGE_KEYS.apiUrl);
     var defaultUrl = (DEFAULTS.apiUrl || "").trim();
 
-    settings.apiUrl = (storedUrl !== null ? storedUrl : defaultUrl).trim();
+    settings.apiUrl = defaultUrl || (storedUrl || "").trim();
 
     if (storedMode === "demo" || storedMode === "backend") {
       settings.mode = storedMode;
