@@ -14,7 +14,7 @@
 window.AID_CONFIG = {
   /* Full URL of the backend analysis endpoint, e.g.
      "http://127.0.0.1:8000/analyze". Leave empty for Demo mode. */
-  apiUrl: "http://127.0.0.1:8000/api/analyze/upload",
+  apiUrl: "https://ai-incident-detective.onrender.com/api/analyze/upload",
 
   /* How the file is sent to the backend:
      "json"      -> POST application/json  { filename, content }
