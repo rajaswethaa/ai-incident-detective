@@ -1,0 +1,9 @@
+
+services:
+  ai-incident-detective:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ai-incident-detective
+    ports:
+      - "8000:8000"
